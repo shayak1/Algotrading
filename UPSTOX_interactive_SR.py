@@ -431,7 +431,8 @@ def trade():
             # df_buy_entry = u.place_order('b', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_buy_entry)
             # placing stop loss order
-            # id_buy_sl = u.place_order('s', instrument, quantity=10, order_type='SL', product_type='D', price=round(sl))
+            # df_buy_sl = u.place_order('s', instrument, quantity=10, order_type='SL', product_type='D', price=round(sl))
+            # write_key_to_settings1('sl-id', df_buy_sl['order_id'])
 
         elif action == "sell-entry":
             print('placing order for Sell Entry')
@@ -440,7 +441,8 @@ def trade():
             # print(df_sell_entry)
             # placing stop loss order
             # df_sell_sl = u.place_order('s', instrument, quantity=10, order_type='SL', product_type='D', price=round(sl))
-            # id_sell_sl = df_sell_sl['order_id']
+            # write_key_to_settings1('sl-id', df_sell_sl['order_id'])
+
 
         elif action == 'buy-exit':
             print('placing order for Buy exit')
@@ -448,7 +450,7 @@ def trade():
             # df_buy_exit = u.place_order('s', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_buy_exit)
             # cancel stop loss order
-            # df_cancel_sl = u.order_cancel(df_buy_sl['order_id'])
+            # df_cancel_sl = u.order_cancel(read_key_from_settings1('sl-id'))
             # print(df_cancel_sl)
 
         elif action == 'sell-exit':
@@ -457,28 +459,34 @@ def trade():
             # df_buy_exit = u.place_order('b', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_buy_exit)
             # cancel stop loss order
-            # df_cancel_sl = u.order_cancel(df_sell_sl['order_id'])
+            # df_cancel_sl = u.order_cancel(read_key_from_settings1('sl-id'))
             # print(df_cancel_sl)
 
         elif action == "buy-TP":
             print('placing order for Buy TP')
+            print('cancel SL order')
             # df_buy_tp = u.place_order('s', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_buy_tp)
+            # cancel stop loss order
+            # df_cancel_sl = u.order_cancel(read_key_from_settings1('sl-id'))
 
         elif action == "sell-TP":
             print('placing order for Sell TP')
+            print('cancel SL order')
             # df_buy_tp = u.place_order('b', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_buy_tp)
+            # cancel stop loss order
+            # df_cancel_sl = u.order_cancel(read_key_from_settings1('sl-id'))
 
         elif action == "buy-SL-trailing":
             sl = read_key_from_settings1('SL')
             print('modifying SL order to ', sl)
-            # df_buy_sl = u.modify_order(order_id=id_buy_sl, price=round(sl))
+            # df_buy_sl = u.modify_order(order_id=read_key_from_settings1('sl-id'), price=round(sl))
 
         elif action == "sell-SL-trailing":
             sl = read_key_from_settings1('SL')
             print('modifying SL order to ', sl)
-            # df_sell_sl = u.modify_order(order_id=id_sell_sl, price=round(sl))
+            # df_sell_sl = u.modify_order(order_id=read_key_from_settings1('sl-id'), price=round(sl))
 
     trade_pos()  # show current position
 
@@ -489,7 +497,7 @@ def write_key_to_settings1(key, value):
         file = open(filename, 'r')
     except IOError:
         data = {"last_trade": "", 'trade_price': None, 'SL': None, 'target': None, "access_token": "",
-                'last_price': None, 'signal': ''}
+                'last_price': None, 'signal': '', 'sl_id': None}
         with open(filename, 'w') as output_file:
             json.dump(data, output_file)
     file = open(filename, 'r')
@@ -603,20 +611,22 @@ def main():
     get_master_contracts()
     get_historic_data()
     indicators()
+    decision()
+
 
     # trade()
-    # decision()
+
     # trade_pos()
 
-    order_place()
+    # order_place()
 
     df = historic_data
-    # print(df.tail(2))
+    print(df.tail(2))
     # graph()
     historic_data.to_excel('/Users/shayakroy/Desktop/Trading Videos/Pyhton/data.xlsx')
     live_data()
 
-'''
+
 if __name__ == '__main__':
     main()
 
@@ -630,3 +640,4 @@ while True:
     schedule.run_pending()
     time.sleep(1)
 
+'''
