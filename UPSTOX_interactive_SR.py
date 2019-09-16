@@ -65,7 +65,7 @@ sma_diff_limit = 50
 script_name = 'CRUDEOIL19SEPFUT'
 exchange = 'MCX_FO'
 instrument = ''
-quantity = 10
+quantity = 100
 profit_target = 90  # change the value to test the results, set at 8%
 stop_loss_target = 45  # change the value to test the results, set at 2%
 trailing = 20
@@ -430,7 +430,6 @@ def trade():
             sl = read_key_from_settings1('SL')
             # df_buy_entry = u.place_order('b', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_buy_entry)
-
             # placing stop loss order
             # id_buy_sl = u.place_order('s', instrument, quantity=10, order_type='SL', product_type='D', price=round(sl))
 
@@ -439,7 +438,6 @@ def trade():
             sl = read_key_from_settings1('SL')
             # df_sell_entry = u.place_order('s', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_sell_entry)
-
             # placing stop loss order
             # df_sell_sl = u.place_order('s', instrument, quantity=10, order_type='SL', product_type='D', price=round(sl))
             # id_sell_sl = df_sell_sl['order_id']
@@ -447,18 +445,20 @@ def trade():
         elif action == 'buy-exit':
             print('placing order for Buy exit')
             print('placing order for cancelling stop loss order')
-            # df_buy_exit = u.place_order('s', instrument, quantity=10, order_type='L', product_type='D', price=4200.00)
+            # df_buy_exit = u.place_order('s', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_buy_exit)
             # cancel stop loss order
-            # df_cancel_sl = u.place_order('s', instrument, quantity=10, order_type='L', product_type='D', price=4200.00)
+            # df_cancel_sl = u.order_cancel(df_buy_sl['order_id'])
+            # print(df_cancel_sl)
 
         elif action == 'sell-exit':
             print('placing order for Sell exit')
             print('placing order for cancelling stop loss order')
-            # df_buy_exit = u.place_order('b', instrument, quantity=10, order_type='L', product_type='D', price=3800.00)
+            # df_buy_exit = u.place_order('b', instrument, quantity=10, order_type='M', product_type='D')
             # print(df_buy_exit)
             # cancel stop loss order
-            # df_cancel_sl = u.place_order('s', instrument, quantity=10, order_type='L', product_type='D', price=4200.00)
+            # df_cancel_sl = u.order_cancel(df_sell_sl['order_id'])
+            # print(df_cancel_sl)
 
         elif action == "buy-TP":
             print('placing order for Buy TP')
@@ -473,12 +473,12 @@ def trade():
         elif action == "buy-SL-trailing":
             sl = read_key_from_settings1('SL')
             print('modifying SL order to ', sl)
-            df_buy_sl_modify = u.modify_order(order_id=id_buy_sl, price=round(sl))
+            # df_buy_sl = u.modify_order(order_id=id_buy_sl, price=round(sl))
 
         elif action == "sell-SL-trailing":
             sl = read_key_from_settings1('SL')
             print('modifying SL order to ', sl)
-            df_sell_sl_modify = u.modify_order(order_id=id_sell_sl, price=round(sl))
+            # df_sell_sl = u.modify_order(order_id=id_sell_sl, price=round(sl))
 
     trade_pos()  # show current position
 
@@ -578,16 +578,20 @@ def live_data():
     df = u.get_live_feed(instrument, LiveFeedType.LTP)
     return df['ltp']
 
-'''
+
 def order_place():
     instrument1 = u.get_instrument_by_symbol('NSE_EQ', 'SBIN')
-    df = u.place_order('s', instrument1, quantity=1, order_type='L', product_type='D', price=288.0)
+    df = u.place_order('b', instrument1, quantity=1, order_type='L', product_type='D', price=287.0)
 
-    id1 = int(df['order_id'])
-    print(id1)
-   # u.modify_order(order_id=id, price=3855.0)
-    print(id1)
-'''
+
+    # id1 = int(df['order_id'])
+    # print(df)
+    # print(id1)
+    # df=u.modify_order(order_id=190916000185783, price=287.5)
+    df = u.cancel_order(190916000185783)
+
+    print(df)
+
 
 def main():
 
@@ -601,18 +605,18 @@ def main():
     indicators()
 
     # trade()
-    decision()
+    # decision()
     # trade_pos()
 
-    # order_place()
+    order_place()
 
     df = historic_data
-    print(df.tail(2))
+    # print(df.tail(2))
     # graph()
     historic_data.to_excel('/Users/shayakroy/Desktop/Trading Videos/Pyhton/data.xlsx')
     live_data()
 
-
+'''
 if __name__ == '__main__':
     main()
 
@@ -626,4 +630,3 @@ while True:
     schedule.run_pending()
     time.sleep(1)
 
-'''
