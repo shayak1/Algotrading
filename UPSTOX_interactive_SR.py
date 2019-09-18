@@ -68,7 +68,7 @@ instrument = ''
 quantity = 100
 profit_target = 90  # change the value to test the results, set at 8%
 stop_loss_target = 45  # change the value to test the results, set at 2%
-trailing = 20
+trailing = 30
 adx_limit = 20
 
 
@@ -305,11 +305,12 @@ def decision():
                         cum_loss_buy = cum_loss_buy + abs(profit)
                         buy_loss_count += 1
 
-                elif df['low'][i] <= stop_loss_val_buy:
+                elif df['low'][i] <= read_key_from_settings1('SL'):
                     df['signal'][i] = 'buy-exit-SL'  # hits stop loss
+                    stop_loss_val_buy = read_key_from_settings1('SL')
                     position = 0
                     store_last_trade('buy-exit-SL', stop_loss_val_buy, 0, 0)
-                    profit = (last_price - buy_val)
+                    profit = (stop_loss_val_buy - buy_val)
                     cum_profit = cum_profit + profit
 
                     if profit > 0:
@@ -362,8 +363,8 @@ def decision():
                     position = 0
 
                     store_last_trade('sell-exit-SL', stop_loss_val_sell, 0, 0)
-
-                    profit = (sell_val - last_price)
+                    stop_loss_val_sell = stop_loss_val_sell
+                    profit = (sell_val - stop_loss_val_sell)
                     cum_profit = cum_profit + profit
 
                     if profit > 0:
@@ -383,10 +384,10 @@ def decision():
                 else:
                     df['signal'][i] = 'sell-hold'
 
-                    price_diff = stop_loss_val_buy - last_price - stop_loss_target
-                    if (price_diff / trailing) > 1:
+                    price_diff = stop_loss_val_sell - last_price - stop_loss_target
+                    if (price_diff / trailing) > 1 and price_diff > 0:
                         df['signal'][i] = 'sell-SL-trailing'
-                        stop_loss_val_buy = stop_loss_val_buy - price_diff / trailing * trailing
+                        stop_loss_val_sell = stop_loss_val_sell - price_diff / trailing * trailing
                         write_key_to_settings1('SL', stop_loss_val_sell)
 
         df['net'][i] = cum_profit_buy + cum_profit_sell - cum_loss_buy - cum_loss_sell
@@ -442,7 +443,6 @@ def trade():
             # placing stop loss order
             # df_sell_sl = u.place_order('s', instrument, quantity=10, order_type='SL', product_type='D', price=round(sl))
             # write_key_to_settings1('sl-id', df_sell_sl['order_id'])
-
 
         elif action == 'buy-exit':
             print('placing order for Buy exit')
@@ -586,7 +586,7 @@ def live_data():
     df = u.get_live_feed(instrument, LiveFeedType.LTP)
     return df['ltp']
 
-
+'''
 def order_place():
     instrument1 = u.get_instrument_by_symbol('NSE_EQ', 'SBIN')
     df = u.place_order('b', instrument1, quantity=1, order_type='L', product_type='D', price=287.0)
@@ -599,7 +599,7 @@ def order_place():
     df = u.cancel_order(190916000185783)
 
     print(df)
-
+'''
 
 def main():
 
@@ -612,21 +612,18 @@ def main():
     get_historic_data()
     indicators()
     decision()
-
-
-    # trade()
-
+    trade()
     # trade_pos()
 
     # order_place()
 
     df = historic_data
-    print(df.tail(2))
+    # print(df.tail(2))
     # graph()
     historic_data.to_excel('/Users/shayakroy/Desktop/Trading Videos/Pyhton/data.xlsx')
     live_data()
 
-
+'''
 if __name__ == '__main__':
     main()
 
@@ -640,4 +637,3 @@ while True:
     schedule.run_pending()
     time.sleep(1)
 
-'''
